@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Эмодзи-кликер с улучшениями</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #333;
+            text-align: center;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            transition: transform 0.3s;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        
+        h1 {
+            color: #4a6baf;
+            margin-bottom: 30px;
+        }
+        
+        .emoji-container {
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        #emoji {
+            font-size: 80px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+            user-select: none;
+        }
+        
+        #emoji:active {
+            transform: scale(1.1);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            font-size: 18px;
+            color: #4a6baf;
+        }
+        
+        .upgrades {
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .upgrade {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .upgrade:hover {
+            background-color: #e9ecef;
+        }
+        
+        .upgrade-info {
+            flex-grow: 1;
+        }
+        
+        .upgrade-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .upgrade-description {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .upgrade-cost {
+            font-weight: bold;
+            color: #4a6baf;
+            margin-left: 15px;
+            white-space: nowrap;
+        }
+        
+        button {
+            background-color: #4a6baf;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #3a5a9f;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background-color: rgba(74, 107, 175, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Эмодзи-кликер</h1>
+        
+        <div class="stats">
+            <div class="stat">
+                <span>Клики</span>
+                <span class="stat-value" id="clicks">0</span>
+            </div>
+            <div class="stat">
+                <span>Красота</span>
+                <span class="stat-value" id="beauty">1</span>
+            </div>
+            <div class="stat">
+                <span>Кликов/сек</span>
+                <span class="stat-value" id="cps">0</span>
+            </div>
+        </div>
+        
+        <div class="emoji-container">
+            <div id="emoji">😊</div>
+        </div>
+        
+        <div class="upgrades">
+            <h3>Улучшения</h3>
+            
+            <div class="upgrade">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Яркие цвета</div>
+                    <div class="upgrade-description">Смайлик становится более красочным</div>
+                </div>
+                <div>
+                    <span class="upgrade-cost" id="color-cost">50</span>
+                    <button id="color-btn" disabled>Купить</button>
+                </div>
+            </div>
+            
+            <div class="upgrade">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Блеск</div>
+                    <div class="upgrade-description">Добавляет блестящий эффект</div>
+                </div>
+                <div>
+                    <span class="upgrade-cost" id="shine-cost">150</span>
+                    <button id="shine-btn" disabled>Купить</button>
+                </div>
+            </div>
+            
+            <div class="upgrade">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Анимация</div>
+                    <div class="upgrade-description">Смайлик начинает подпрыгивать</div>
+                </div>
+                <div>
+                    <span class="upgrade-cost" id="anim-cost">300</span>
+                    <button id="anim-btn" disabled>Купить</button>
+                </div>
+            </div>
+            
+            <div class="upgrade">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Автокликеры</div>
+                    <div class="upgrade-description">Автоматически кликает за вас</div>
+                </div>
+                <div>
+                    <span class="upgrade-cost" id="auto-cost">500</span>
+                    <button id="auto-btn" disabled>Купить</button>
+                </div>
+            </div>
+            
+            <div class="upgrade">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Золотой смайлик</div>
+                    <div class="upgrade-description">Премиум уровень красоты</div>
+                </div>
+                <div>
+                    <span class="upgrade-cost" id="gold-cost">1000</span>
+                    <button id="gold-btn" disabled>Купить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="particles" id="particles"></div>
+    
+    <script>
+        // Игровые переменные
+        let clicks = 0;
+        let beauty = 1;
+        let cps = 0;
+        let autoClickers = 0;
+        
+        // Состояние улучшений
+        const upgrades = {
+            color: false,
+            shine: false,
+            animation: false,
+            auto: false,
+            gold: false
+        };
+        
+        // Стоимость улучшений
+        const costs = {
+            color: 50,
+            shine: 150,
+            anim: 300,
+            auto: 500,
+            gold: 1000
+        };
+        
+        // Элементы DOM
+        const emoji = document.getElementById('emoji');
+        const clicksDisplay = document.getElementById('clicks');
+        const beautyDisplay = document.getElementById('beauty');
+        const cpsDisplay = document.getElementById('cps');
+        const particlesContainer = document.getElementById('particles');
+        
+        // Кнопки улучшений
+        const colorBtn = document.getElementById('color-btn');
+        const shineBtn = document.getElementById('shine-btn');
+        const animBtn = document.getElementById('anim-btn');
+        const autoBtn = document.getElementById('auto-btn');
+        const goldBtn = document.getElementById('gold-btn');
+        
+        // Обработчик клика по смайлику
+        emoji.addEventListener('click', function() {
+            clicks += beauty;
+            updateDisplay();
+            createParticles();
+            
+            // Анимация клика
+            emoji.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                emoji.style.transform = 'scale(1)';
+            }, 100);
+        });
+        
+        // Обработчики кнопок улучшений
+        colorBtn.addEventListener('click', function() {
+            if (clicks >= costs.color && !upgrades.color) {
+                clicks -= costs.color;
+                upgrades.color = true;
+                beauty += 1;
+                emoji.style.textShadow = '0 0 10px rgba(255, 215, 0, 0.7)';
+                updateDisplay();
+                checkUpgrades();
+            }
+        });
+        
+        shineBtn.addEventListener('click', function() {
+            if (clicks >= costs.shine && !upgrades.shine) {
+                clicks -= costs.shine;
+                upgrades.shine = true;
+                beauty += 2;
+                emoji.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.9)';
+                updateDisplay();
+                checkUpgrades();
+            }
+        });
+        
+        animBtn.addEventListener('click', function() {
+            if (clicks >= costs.anim && !upgrades.animation) {
+                clicks -= costs.anim;
+                upgrades.animation = true;
+                beauty += 3;
+                emoji.style.animation = 'bounce 0.5s infinite alternate';
+                document.styleSheets[0].insertRule(`
+                    @keyframes bounce {
+                        from { transform: translateY(0); }
+                        to { transform: translateY(-10px); }
+                    }
+                `, document.styleSheets[0].cssRules.length);
+                updateDisplay();
+                checkUpgrades();
+            }
+        });
+        
+        autoBtn.addEventListener('click', function() {
+            if (clicks >= costs.auto && !upgrades.auto) {
+                clicks -= costs.auto;
+                upgrades.auto = true;
+                autoClickers += 1;
+                cps += 1;
+                updateDisplay();
+                checkUpgrades();
+            }
+        });
+        
+        goldBtn.addEventListener('click', function() {
+            if (clicks >= costs.gold && !upgrades.gold) {
+                clicks -= costs.gold;
+                upgrades.gold = true;
+                beauty += 5;
+                emoji.style.color = 'gold';
+                emoji.style.textShadow = '0 0 25px rgba(255, 215, 0, 0.9)';
+                updateDisplay();
+                checkUpgrades();
+            }
+        });
+        
+        // Обновление отображения
+        function updateDisplay() {
+            clicksDisplay.textContent = clicks;
+            beautyDisplay.textContent = beauty;
+            cpsDisplay.textContent = cps;
+            
+            // Обновляем смайлик в зависимости от уровня красоты
+            updateEmoji();
+            
+            // Проверяем доступные улучшения
+            checkUpgrades();
+        }
+        
+        // Обновление смайлика
+        function updateEmoji() {
+            if (beauty >= 15) {
+                emoji.textContent = '😍';
+            } else if (beauty >= 10) {
+                emoji.textContent = '🥰';
+            } else if (beauty >= 7) {
+                emoji.textContent = '😘';
+            } else if (beauty >= 5) {
+                emoji.textContent = '😊';
+            } else {
+                emoji.textContent = '🙂';
+            }
+        }
+        
+        // Проверка доступных улучшений
+        function checkUpgrades() {
+            colorBtn.disabled = clicks < costs.color || upgrades.color;
+            shineBtn.disabled = clicks < costs.shine || upgrades.shine;
+            animBtn.disabled = clicks < costs.anim || upgrades.animation;
+            autoBtn.disabled = clicks < costs.auto || upgrades.auto;
+            goldBtn.disabled = clicks < costs.gold || upgrades.gold;
+        }
+        
+        // Создание частиц при клике
+        function createParticles() {
+            for (let i = 0; i < 5; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Размер и цвет частицы
+                const size = Math.random() * 10 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Позиция частицы
+                const emojiRect = emoji.getBoundingClientRect();
+                const x = emojiRect.left + emojiRect.width / 2;
+                const y = emojiRect.top + emojiRect.height / 2;
+                
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                
+                // Случайный цвет
+                const colors = ['#4a6baf', '#ffd700', '#ff69b4', '#7b68ee', '#32cd32'];
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                particlesContainer.appendChild(particle);
+                
+                // Анимация частицы
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 100 + 50;
+                
+                const animation = particle.animate([
+                    { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) rotate(360deg)`, opacity: 0 }
+                ], {
+                    duration: 1000,
+                    easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                });
+                
+                animation.onfinish = () => {
+                    particle.remove();
+                };
+            }
+        }
+        
+        // Автокликеры
+        setInterval(() => {
+            if (autoClickers > 0) {
+                clicks += autoClickers * beauty;
+                updateDisplay();
+            }
+        }, 1000);
+    </script>
+</body>
+  </html>
